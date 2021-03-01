@@ -1,9 +1,14 @@
 function Card(props) {
+  const { widthCard, id, imgId, hidden, onClick, cardType } = props;
+
   return (
-    <div className="card" id={props.id}>
-      <div className="card-image waves-effect waves-block waves-light">
-        <img src="./cards/empty.jpg" alt="" />
-      </div>
+    <div
+      className="card"
+      style={{ width: `${widthCard}%` }}
+      onClick={onClick}
+    >
+      <img src="./cards/empty.jpg" alt="" data-id={id} className={`empty${hidden ? '' : ' hidden'}`} />
+      <img src={`./cards/${cardType.directory}/${imgId}.jpg`} alt="" className={`real${hidden ? ' hidden' : ''}`} />
     </div>
   );
 }
