@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Card } from '../components/Card';
+import { Stats } from '../components/Stats';
 import { Settings } from '../components/Settings';
 import { sizeField, cardsType } from '../config/settings';
-import { shuffleArray } from '../utils/utils';
+import { shuffleArray, getStorage, addStorage, getTimeText } from '../utils/utils';
 import InputRange from 'react-input-range';
 
 class Main extends Component {
@@ -18,7 +19,8 @@ class Main extends Component {
     moves: 0,
     timer: 0,
     sound: 30,
-    music: 0
+    music: 0,
+    viewStats: false
   };
 
   startGame = () => {
@@ -45,6 +47,16 @@ class Main extends Component {
     });
     this.audioFon.pause();
     clearInterval(this.timerId);
+
+    const stats = getStorage('mg_stats');
+    const size = sizeField[this.state.sizeFieldIndex];
+    stats.unshift({
+      timer: this.state.timer,
+      moves: this.state.moves,
+      date: new Date().toLocaleString(),
+      size: `${size.rows}x${size.cols}`
+    });
+    addStorage(stats.slice(0, 10), 'mg_stats');
   }
 
   generateCard = (sizeFieldIndex) => {
@@ -128,6 +140,10 @@ class Main extends Component {
     this.setCardIsHidden(card.id, false);
   }
 
+  viewStatsModal = () => {
+    this.setState(prevState => ({ viewStats: !prevState.viewStats }));
+  }
+
   componentDidMount() {
     const { sizeFieldIndex, cardsTypeIndex, sound, music } = this.state;
     this.generateCard(sizeFieldIndex, cardsTypeIndex);
@@ -192,13 +208,14 @@ class Main extends Component {
   }
 
   render() {
-    const { sizeFieldIndex, cardsTypeIndex, cards, isStarted, isFinished, moves, timer } = this.state;
+    const { sizeFieldIndex, cardsTypeIndex, cards, isStarted, isFinished, moves, timer, viewStats } = this.state;
 
     return (
       <main className="content">
+
         <div className="stats game-content">
           <div className="moves stats-block">{moves} moves</div>
-          <div className="timer stats-block">{timer}</div>
+          <div className="timer stats-block">{getTimeText(timer)}</div>
           <div className="sound">
             <InputRange
               maxValue={100}
@@ -213,7 +230,9 @@ class Main extends Component {
               value={this.state.music}
               onChange={music => this.setState({ music })} />
           </div>
+          <button className="btn" onClick={this.viewStatsModal}>Stats</button>
         </div>
+
         <div className="game game-content">
           <div className={`overlay${isStarted ? ' hidden' : ''}`}></div>
           <div
@@ -231,6 +250,10 @@ class Main extends Component {
             }
           </div>
 
+          <div className={`table-stats${!viewStats ? ' hidden' : ''}`}>
+            Stats
+          </div>
+          <Stats viewStats={viewStats} viewStatsModal={this.viewStatsModal} />
           <div className="cards">
             {cards.map(card =>
               <Card

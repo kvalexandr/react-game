@@ -143,3 +143,16 @@ nav {
 .active {
   background-color: #196f67;
 }
+
+.ReactModal__Overlay {
+  z-index: 100;
+}
+
+.ReactModal__Body--open {
+  overflow: hidden;
+}
+
+.ReactModal__Content {
+  max-width: 400px;
+  margin: auto;
+}
