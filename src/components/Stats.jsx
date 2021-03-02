@@ -2,6 +2,8 @@ import React from 'react';
 import Modal from 'react-modal';
 import { getStorage, getTimeText } from '../utils/utils';
 
+Modal.setAppElement('#root');
+
 function Stats(props) {
   const { viewStats, viewStatsModal } = props;
   const stats = getStorage('mg_stats');
@@ -24,8 +26,8 @@ function Stats(props) {
 
         <tbody>
           {
-            stats.map(item => (
-              <tr>
+            stats.map((item, index) => (
+              <tr key={index}>
                 <td>{item.date}</td>
                 <td>{item.size}</td>
                 <td>{item.moves}</td>

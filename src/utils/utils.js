@@ -25,3 +25,23 @@ export function getTimeText(timer) {
   const [minute, second] = getTime(timer);
   return `${minute}:${second}`;
 }
+
+export function fullScreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.webkitrequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.mozRequestFullscreen) {
+    element.mozRequestFullScreen();
+  }
+}
+
+export function cancelFullscreen() {
+  if (document.cancelFullScreen) {
+    document.cancelFullScreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.webkitCancelFullScreen) {
+    document.webkitCancelFullScreen();
+  }
+}

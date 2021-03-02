@@ -3,7 +3,7 @@ import { Card } from '../components/Card';
 import { Stats } from '../components/Stats';
 import { Settings } from '../components/Settings';
 import { sizeField, cardsType } from '../config/settings';
-import { shuffleArray, getStorage, addStorage, getTimeText } from '../utils/utils';
+import { shuffleArray, getStorage, addStorage, getTimeText, fullScreen, cancelFullscreen } from '../utils/utils';
 import InputRange from 'react-input-range';
 
 class Main extends Component {
@@ -20,20 +20,23 @@ class Main extends Component {
     timer: 0,
     sound: 30,
     music: 0,
-    viewStats: false
+    viewStats: false,
+    fullscreen: false
   };
 
   startGame = () => {
-    this.generateCard(this.state.sizeFieldIndex);
     this.setState({
       firstCard: null,
       secondCard: null,
       isStarted: true,
       moves: 0,
-      timer: 0
+      timer: 0,
+      cards: this.generateCard(this.state.sizeFieldIndex)
     });
     this.audioFon.play();
     this.audioFon.currentTime = 0;
+
+    if (this.timerId) clearInterval(this.timerId);
 
     this.timerId = setInterval(() => {
       this.setState(prevState => ({ timer: prevState.timer + 1 }));
@@ -75,20 +78,23 @@ class Main extends Component {
         lockBoard: false
       });
     }
-    const shuffleCards = shuffleArray(cards);
 
-    this.setState({ cards: shuffleCards });
+    return shuffleArray(cards);
   }
 
   onChangeSizeField = (sizeFieldIndex) => {
-    this.setState({ sizeFieldIndex });
-    this.generateCard(sizeFieldIndex);
-  }
+    this.setState({
+      sizeFieldIndex,
+      firstCard: null,
+      secondCard: null,
+      isStarted: false,
+      isFinished: false,
+      moves: 0,
+      timer: 0,
+      cards: this.generateCard(sizeFieldIndex)
+    });
 
-  onChangeCardsType = (cardsTypeIndex) => {
-    this.setState({ cardsTypeIndex });
-    const { sizeFieldIndex } = this.state;
-    this.generateCard(sizeFieldIndex);
+    if (this.timerId) clearInterval(this.timerId);
   }
 
   setCardIsHidden = (cardId, hidden) => {
@@ -145,8 +151,10 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    const { sizeFieldIndex, cardsTypeIndex, sound, music } = this.state;
-    this.generateCard(sizeFieldIndex, cardsTypeIndex);
+    const { sizeFieldIndex, sound, music } = this.state;
+    this.setState({
+      cards: this.generateCard(sizeFieldIndex)
+    });
 
     this.audioBtn = new Audio('./sound/btn.wav')
     this.audioBtn.load();
@@ -203,34 +211,32 @@ class Main extends Component {
     }
   }
 
-  componentWillUnmount() {
-    console.log('unmount');
-  }
-
   render() {
-    const { sizeFieldIndex, cardsTypeIndex, cards, isStarted, isFinished, moves, timer, viewStats } = this.state;
+    const { sizeFieldIndex, cardsTypeIndex, speed, cards, isStarted, isFinished, moves, timer, viewStats, fullscreen } = this.state;
 
     return (
-      <main className="content">
+      <main className="content" id="game">
 
         <div className="stats game-content">
           <div className="moves stats-block">{moves} moves</div>
           <div className="timer stats-block">{getTimeText(timer)}</div>
-          <div className="sound">
-            <InputRange
-              maxValue={100}
-              minValue={0}
-              value={this.state.sound}
-              onChange={sound => this.setState({ sound })} />
-          </div>
-          <div className="sound">
-            <InputRange
-              maxValue={100}
-              minValue={0}
-              value={this.state.music}
-              onChange={music => this.setState({ music })} />
-          </div>
+
           <button className="btn" onClick={this.viewStatsModal}>Stats</button>
+          <button className="btn" onClick={() => this.startGame()}>New game</button>
+
+          {
+            fullscreen
+              ? <button className="btn" onClick={() => {
+                cancelFullscreen();
+                this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
+              }}>Window</button>
+              : <button className="btn" onClick={() => {
+                var canvas = document.getElementById('game');
+                fullScreen(canvas);
+                this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
+              }}>Fullscreen</button>
+          }
+
         </div>
 
         <div className="game game-content">
@@ -250,10 +256,8 @@ class Main extends Component {
             }
           </div>
 
-          <div className={`table-stats${!viewStats ? ' hidden' : ''}`}>
-            Stats
-          </div>
           <Stats viewStats={viewStats} viewStatsModal={this.viewStatsModal} />
+
           <div className="cards">
             {cards.map(card =>
               <Card
@@ -264,11 +268,33 @@ class Main extends Component {
               />)}
           </div>
         </div>
+
+        <div className="stats game-content">
+          <br /><br /><br />
+          <div className="sound">
+            Sound: <InputRange
+              maxValue={100}
+              minValue={0}
+              value={this.state.sound}
+              onChange={sound => this.setState({ sound })} />
+          </div>
+          <div className="sound">
+            Music: <InputRange
+              maxValue={100}
+              minValue={0}
+              value={this.state.music}
+              onChange={music => this.setState({ music })} />
+          </div>
+          <br />
+        </div>
+
         <Settings
           sizeFieldIndex={sizeFieldIndex}
           onChangeSizeField={this.onChangeSizeField}
           cardsTypeIndex={cardsTypeIndex}
-          onChangeCardsType={this.onChangeCardsType}
+          onChangeCardsType={(cardsTypeIndex) => this.setState({ cardsTypeIndex })}
+          speed={speed}
+          onChangeSpeed={(speed) => this.setState({ speed })}
         />
       </main>
     );

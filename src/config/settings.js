@@ -27,3 +27,22 @@ export const cardsType = [
     name: 'Animals'
   }
 ];
+
+export const speedType = [
+  {
+    value: 1000,
+    name: 'Standart'
+  },
+  {
+    value: 2000,
+    name: 'Normal'
+  },
+  {
+    value: 3000,
+    name: 'Slow'
+  },
+  {
+    value: 300,
+    name: 'Fast'
+  },
+];
