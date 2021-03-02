@@ -6,7 +6,7 @@ function Settings(props) {
     onChangeSizeField,
     cardsTypeIndex,
     onChangeCardsType,
-    speed,
+    speedIndex,
     onChangeSpeed
   } = props;
 
@@ -41,8 +41,8 @@ function Settings(props) {
     speedSettings.push(
       <button
         key={i}
-        className={`btn${speedType[i].value === speed ? ' active' : ''}`}
-        onClick={() => onChangeSpeed(speedType[i].value)}
+        className={`btn${i === speedIndex ? ' active' : ''}`}
+        onClick={() => onChangeSpeed(i)}
       >
         {`${speedType[i].name}`}
       </button>
