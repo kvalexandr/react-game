@@ -4,7 +4,6 @@ import { Stats } from '../components/Stats';
 import { Settings } from '../components/Settings';
 import { sizeField, cardsType, speedType } from '../config/settings';
 import { shuffleArray, getStorage, addStorage, getTimeText, fullScreen, cancelFullscreen } from '../utils/utils';
-import InputRange from 'react-input-range';
 
 class Main extends Component {
   state = {
@@ -14,6 +13,7 @@ class Main extends Component {
     secondCard: null,
     isStarted: false,
     isFinished: false,
+    isPause: false,
     sizeFieldIndex: 0,
     cardsTypeIndex: 0,
     speedIndex: 0,
@@ -22,6 +22,7 @@ class Main extends Component {
     sound: 30,
     music: 0,
     viewStats: false,
+    viewSettings: false,
     fullscreen: false
   };
 
@@ -34,11 +35,10 @@ class Main extends Component {
       timer: 0,
       cards: this.generateCard(this.state.sizeFieldIndex)
     });
-    //this.audioFon.play();
+    this.audioFon.play();
     this.audioFon.currentTime = 0;
 
     if (this.timerId) clearInterval(this.timerId);
-
     this.startTimer();
   }
 
@@ -47,6 +47,28 @@ class Main extends Component {
       this.setState(prevState => ({ timer: prevState.timer + 1 }));
       this.saveGame();
     }, 1000);
+  }
+
+  continueGame = () => {
+    this.setState({
+      isStarted: true,
+      isPause: false,
+    });
+
+    this.audioFon.play();
+    this.audioFon.currentTime = 0;
+
+    if (this.timerId) clearInterval(this.timerId);
+    this.startTimer();
+  }
+
+  pauseGame = () => {
+    this.setState({
+      isStarted: false,
+      isPause: true,
+    });
+    clearInterval(this.timerId);
+    this.audioFon.pause();
   }
 
   endGame = () => {
@@ -71,7 +93,7 @@ class Main extends Component {
   }
 
   saveGame = () => {
-    //addStorage(this.state, 'mg_save');
+    addStorage(this.state, 'mg_save');
   }
 
   generateCard = (sizeFieldIndex) => {
@@ -159,6 +181,11 @@ class Main extends Component {
     this.setState(prevState => ({ viewStats: !prevState.viewStats }));
   }
 
+  viewSettingsModal = () => {
+    this.setState(prevState => ({ viewSettings: !prevState.viewSettings }));
+  }
+
+
   hotKeys = (event) => {
     if (event.shiftKey || event.metaKey) {
       switch (event.code) {
@@ -200,8 +227,8 @@ class Main extends Component {
   componentDidMount() {
     const saveGame = getStorage('mg_save');
     if (saveGame && saveGame.cards && saveGame.cards.length > 0) {
-      //this.setState(saveGame);
-      this.startTimer();
+      this.setState({ ...saveGame, isPause: true, isStarted: false });
+      //this.startTimer();
     } else {
       this.setState({
         cards: this.generateCard(this.state.sizeFieldIndex)
@@ -266,30 +293,52 @@ class Main extends Component {
   }
 
   render() {
-    const { sizeFieldIndex, cardsTypeIndex, speedIndex, cards, isStarted, isFinished, moves, timer, viewStats, fullscreen } = this.state;
+    const {
+      sizeFieldIndex,
+      cardsTypeIndex,
+      speedIndex,
+      cards,
+      isStarted,
+      isFinished,
+      isPause,
+      moves,
+      timer,
+      viewStats,
+      viewSettings,
+      fullscreen,
+      sound,
+      music
+    } = this.state;
 
     return (
       <main className="content" id="game">
 
-        <div className="stats game-content">
-          <div className="moves stats-block">{moves} moves</div>
-          <div className="timer stats-block">{getTimeText(timer)}</div>
+        <div className="game-content panel">
+          <div className="stats">
+            <div className="moves stats-block">{moves} moves</div>
+            <div className="timer stats-block">{getTimeText(timer)}</div>
+          </div>
 
-          <button className="btn" onClick={this.viewStatsModal}>Stats</button>
-          <button className="btn" onClick={() => this.startGame()}>New game</button>
+          <div className="controls">
+            <i className="material-icons" onClick={this.viewSettingsModal}>info_outline</i>
+            <i className="material-icons" onClick={this.viewStatsModal}>view_list</i>
+            <i className="material-icons" onClick={this.viewSettingsModal}>settings</i>
+            <i className="material-icons" onClick={() => this.startGame()}>autorenew</i>
+            <i className="material-icons" onClick={this.pauseGame}>pause_circle_outline</i>
 
-          {
-            fullscreen
-              ? <button className="btn" onClick={() => {
-                cancelFullscreen();
-                this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
-              }}>Window</button>
-              : <button className="btn" onClick={() => {
-                var canvas = document.getElementById('game');
-                fullScreen(canvas);
-                this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
-              }}>Fullscreen</button>
-          }
+            {
+              fullscreen
+                ? <i className="material-icons" onClick={() => {
+                  cancelFullscreen();
+                  this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
+                }}>fullscreen_exit</i>
+                : <i className="material-icons" onClick={() => {
+                  const game = document.getElementById('game');
+                  fullScreen(game);
+                  this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
+                }}>fullscreen</i>
+            }
+          </div>
 
         </div>
 
@@ -297,20 +346,20 @@ class Main extends Component {
           <div className={`overlay${isStarted ? ' hidden' : ''}`}></div>
           <div
             className={`start-btn${isStarted ? ' hidden' : ''}`}
-            onClick={this.startGame}
+            onClick={isPause ? this.continueGame : this.startGame}
           >
             {
-              isFinished
-                ?
-                <>
-                  <div>End game</div>
-                  <div className="start-btn__subtitle">Play again</div>
-                </>
-                : 'Start game'
+              isPause
+                ? 'Continue game'
+                : isFinished
+                  ?
+                  <>
+                    <div>End game</div>
+                    <div className="start-btn__subtitle">Play again</div>
+                  </>
+                  : 'Start game'
             }
           </div>
-
-          <Stats viewStats={viewStats} viewStatsModal={this.viewStatsModal} />
 
           <div className="cards">
             {cards.map(card =>
@@ -323,26 +372,14 @@ class Main extends Component {
           </div>
         </div>
 
-        <div className="stats game-content">
-          <br /><br /><br />
-          <div className="sound">
-            Sound: <InputRange
-              maxValue={100}
-              minValue={0}
-              value={this.state.sound}
-              onChange={sound => this.setState({ sound })} />
-          </div>
-          <div className="sound">
-            Music: <InputRange
-              maxValue={100}
-              minValue={0}
-              value={this.state.music}
-              onChange={music => this.setState({ music })} />
-          </div>
-          <br />
-        </div>
-
+        <Stats viewStats={viewStats} viewStatsModal={this.viewStatsModal} />
         <Settings
+          sound={sound}
+          onChangeSoundVolume={sound => this.setState({ sound })}
+          music={music}
+          onChangeMusicVolume={music => this.setState({ music })}
+          viewSettings={viewSettings}
+          viewSettingsModal={this.viewSettingsModal}
           sizeFieldIndex={sizeFieldIndex}
           onChangeSizeField={this.onChangeSizeField}
           cardsTypeIndex={cardsTypeIndex}

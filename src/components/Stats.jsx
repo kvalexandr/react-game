@@ -12,7 +12,10 @@ function Stats(props) {
     <Modal
       isOpen={viewStats}
     >
-      <button className="btn" onClick={viewStatsModal}>Close stats</button>
+      <div className="modal-close">
+        <i className="material-icons" onClick={viewStatsModal}>close</i>
+      </div>
+      <div className="modal-title">Statistics</div>
 
       <table className="striped">
         <thead>

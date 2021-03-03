@@ -1,4 +1,7 @@
+import React from 'react';
+import Modal from 'react-modal';
 import { sizeField, cardsType, speedType } from '../config/settings';
+import InputRange from 'react-input-range';
 
 function Settings(props) {
   const {
@@ -7,7 +10,13 @@ function Settings(props) {
     cardsTypeIndex,
     onChangeCardsType,
     speedIndex,
-    onChangeSpeed
+    onChangeSpeed,
+    viewSettings,
+    viewSettingsModal,
+    sound,
+    onChangeSoundVolume,
+    music,
+    onChangeMusicVolume
   } = props;
 
   const sizeSettings = [];
@@ -50,17 +59,45 @@ function Settings(props) {
   }
 
   return (
-    <div className="game-content">
-      <div className="settings">
-        {sizeSettings.map(size => size)}
-        <br />
-        <br />
-        {cardsTypeSettings.map(cardType => cardType)}
-        <br />
-        <br />
-        {speedSettings.map(speed => speed)}
+    <Modal
+      isOpen={viewSettings}
+    >
+      <div className="modal-close">
+        <i className="material-icons" onClick={viewSettingsModal}>close</i>
       </div>
-    </div>
+      <div className="modal-title">Settings</div>
+
+      <div className="settings">
+        <div className="settings-section">
+          <div className="settings-title">Sound</div>
+          <InputRange
+            maxValue={100}
+            minValue={0}
+            value={sound}
+            onChange={sound => onChangeSoundVolume(sound)} />
+        </div>
+        <div className="settings-section">
+          <div className="settings-title">Music</div>
+          <InputRange
+            maxValue={100}
+            minValue={0}
+            value={music}
+            onChange={music => onChangeMusicVolume(music)} />
+        </div>
+        <div className="settings-section">
+          <div className="settings-title">Size field</div>
+          {sizeSettings.map(size => size)}
+        </div>
+        <div className="settings-section">
+          <div className="settings-title">Cards type</div>
+          {cardsTypeSettings.map(cardType => cardType)}
+        </div>
+        <div className="settings-section">
+          <div className="settings-title">Speed</div>
+          {speedSettings.map(speed => speed)}
+        </div>
+      </div>
+    </Modal>
   );
 }
 

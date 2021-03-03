@@ -31,10 +31,6 @@ export const cardsType = [
 export const speedType = [
   {
     value: 1000,
-    name: 'Standart'
-  },
-  {
-    value: 2000,
     name: 'Normal'
   },
   {
