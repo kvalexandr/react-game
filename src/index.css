@@ -140,6 +140,10 @@ nav {
   z-index: 1;
 }
 
+.real.found {
+  opacity: .3;
+}
+
 .active {
   background-color: #196f67;
 }

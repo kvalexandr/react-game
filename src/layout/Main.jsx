@@ -9,6 +9,7 @@ import InputRange from 'react-input-range';
 class Main extends Component {
   state = {
     cards: [],
+    lockBoard: false,
     firstCard: null,
     secondCard: null,
     isStarted: false,
@@ -85,8 +86,7 @@ class Main extends Component {
         imgId: i < countCard / 2 ? i : i - countCard / 2,
         hidden: true,
         clickable: true,
-        widthCard: widthCard,
-        lockBoard: false
+        widthCard: widthCard
       });
     }
 
@@ -243,15 +243,10 @@ class Main extends Component {
 
     if (firstCard && secondCard) {
 
-      //console.log(firstCard, secondCard);
-
       if (firstCard.imgId === secondCard.imgId) {
-        console.log('+++');
         this.setCardIsClickable(firstCard.id, false);
         this.setCardIsClickable(secondCard.id, false);
       } else {
-        console.log('---');
-
         this.setState({ lockBoard: true });
 
         setTimeout(() => {
