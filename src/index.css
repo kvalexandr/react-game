@@ -14,10 +14,15 @@ code {
 
 nav {
   text-align: center;
+  background-color: #26a69a;
 }
 
 .title-game {
   font-size: 24px;
+}
+
+.page-footer {
+  background-color: #26a69a;
 }
 
 .footer {
@@ -106,10 +111,12 @@ nav {
   /* display: grid;
   grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
   gap: 1rem;  */
-  width: 100%;
+  /* width: 100%;
   box-sizing: border-box;
   margin: auto;
-  text-align: center;
+  text-align: center; */
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .card {
@@ -118,6 +125,8 @@ nav {
   padding: .2rem;
   overflow: hidden;
   z-index: 2;
+  position: relative;
+  margin: 4px;
 }
 
 .card img {
@@ -127,7 +136,48 @@ nav {
   z-index: 1;
 }
 
-.real.found {
+.empty {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #26a69a;
+}
+
+.card-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  transition: transform .5s cubic-bezier(0, 0, 0, 1.275),opacity 0.2s linear;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  background-color: #26a69a;
+}
+
+.card-back {
+  backface-visibility: hidden;
+  transition: transform .5s cubic-bezier(0, 0, 0, 1.275);
+  transform-style: preserve-3d;
+  transform: rotateY(-180deg);
+  background-color: #fff;
+  width: 100%;
+}
+
+.hover .card-front {
+  opacity: 0;
+  transform: rotateY(180deg);
+}
+
+.hover .card-back {
+  z-index: 10;
+  transform: rotateY(0deg);
+}
+
+.card-back .found {
   opacity: .3;
 }
 
@@ -157,6 +207,7 @@ nav {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
+  padding: 0 4px;
 }
 
 .controls i {
@@ -171,7 +222,7 @@ nav {
 
 .stats-block {
   color: #fff;
-  background-color: #43A047;
+  background-color: #26a69a;
   font-size: 20px;
   padding: 3px 10px;
   margin-right: 20px;
@@ -199,4 +250,13 @@ nav {
   margin-bottom: 10px;
   margin-top: 10px;
   font-size: 16px;
+}
+
+.input-range__track--active {
+  background-color: #26a69a;
+}
+
+.input-range__slider {
+  background: #26a69a;
+  border: 1px solid #26a69a;
 }

@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <footer className="page-footer green">
+    <footer className="page-footer">
       <div className="footer-copyright">
         <div className="container">
           <div className="footer">

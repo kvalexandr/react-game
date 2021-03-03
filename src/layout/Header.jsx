@@ -1,6 +1,6 @@
 function Header() {
   return (
-    <nav className="green darken-1">
+    <nav>
       <div className="nav-wrapper">
         <div className="container">
           <span className="title-game">Memory game</span>

@@ -1,18 +1,21 @@
 function Card(props) {
-  const { widthCard, id, imgId, hidden, clickable, onClick, cardType } = props;
+  const { widthCard, imgId, hidden, clickable, onClick, cardType } = props;
 
   return (
     <div
-      className="card"
-      style={{ width: `${widthCard}%` }}
+      className={`card${hidden ? '' : ' hover'}`}
+      style={{ width: `calc(${widthCard}% - 8px)`, height: `100%` }}
       onClick={onClick}
     >
-      <img src="./cards/empty.jpg" alt="" data-id={id} className={`empty${hidden ? '' : ' hidden'}`} />
-      <img
-        src={`./cards/${cardType.directory}/${imgId}.jpg`}
-        alt=""
-        className={`real${hidden ? ' hidden' : ''}${!clickable ? ' found' : ''}`}
-      />
+      {/* <img src="./cards/empty.jpg" alt="" className={`empty${hidden ? '' : ' hidden'}`} /> */}
+      <div className={`card-front`}></div>
+      <div className="card-back">
+        <img
+          src={`./cards/${cardType.directory}/${imgId}.jpg`}
+          alt=""
+          className={`${!clickable ? ' found' : ''}`}
+        />
+      </div>
     </div>
   );
 }

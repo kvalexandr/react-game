@@ -31,6 +31,7 @@ class Main extends Component {
       firstCard: null,
       secondCard: null,
       isStarted: true,
+      isPause: false,
       moves: 0,
       timer: 0,
       cards: this.generateCard(this.state.sizeFieldIndex)
@@ -45,7 +46,7 @@ class Main extends Component {
   startTimer = () => {
     this.timerId = setInterval(() => {
       this.setState(prevState => ({ timer: prevState.timer + 1 }));
-      this.saveGame();
+      //this.saveGame();
     }, 1000);
   }
 
@@ -121,6 +122,7 @@ class Main extends Component {
       firstCard: null,
       secondCard: null,
       isStarted: false,
+      isPause: false,
       isFinished: false,
       moves: 0,
       timer: 0,
@@ -128,6 +130,7 @@ class Main extends Component {
     });
 
     if (this.timerId) clearInterval(this.timerId);
+    this.audioFon.pause();
   }
 
   setCardIsHidden = (cardId, hidden) => {
@@ -228,7 +231,6 @@ class Main extends Component {
     const saveGame = getStorage('mg_save');
     if (saveGame && saveGame.cards && saveGame.cards.length > 0) {
       this.setState({ ...saveGame, isPause: true, isStarted: false });
-      //this.startTimer();
     } else {
       this.setState({
         cards: this.generateCard(this.state.sizeFieldIndex)
@@ -245,11 +247,8 @@ class Main extends Component {
     this.audioFon.volume = music / 100;
     this.audioFon.loop = true;
 
-    // setTimeout(() => {
-    //   this.audioFon.play();
-    // }, 2500);
-
     document.addEventListener('keydown', this.hotKeys);
+    window.addEventListener('beforeunload', this.saveGame);
   }
 
   componentDidUpdate() {
@@ -292,6 +291,10 @@ class Main extends Component {
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.saveGame);
+  }
+
   render() {
     const {
       sizeFieldIndex,
@@ -324,7 +327,9 @@ class Main extends Component {
             <i className="material-icons" onClick={this.viewStatsModal}>view_list</i>
             <i className="material-icons" onClick={this.viewSettingsModal}>settings</i>
             <i className="material-icons" onClick={() => this.startGame()}>autorenew</i>
-            <i className="material-icons" onClick={this.pauseGame}>pause_circle_outline</i>
+            <i className="material-icons" onClick={isPause ? this.continueGame : this.pauseGame}>
+              {isPause ? 'play_circle_outline' : 'pause_circle_outline'}
+            </i>
 
             {
               fullscreen
@@ -333,7 +338,7 @@ class Main extends Component {
                   this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
                 }}>fullscreen_exit</i>
                 : <i className="material-icons" onClick={() => {
-                  const game = document.getElementById('game');
+                  const game = document.body;
                   fullScreen(game);
                   this.setState(prevState => ({ fullscreen: !prevState.fullscreen }));
                 }}>fullscreen</i>
