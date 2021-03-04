@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Card } from '../components/Card';
 import { Stats } from '../components/Stats';
 import { Settings } from '../components/Settings';
+import { Info } from '../components/Info';
 import { sizeField, cardsType, speedType } from '../config/settings';
 import { shuffleArray, getStorage, addStorage, getTimeText, fullScreen, cancelFullscreen } from '../utils/utils';
 
@@ -23,6 +24,7 @@ class Main extends Component {
     music: 0,
     viewStats: false,
     viewSettings: false,
+    viewInfo: false,
     fullscreen: false
   };
 
@@ -95,6 +97,42 @@ class Main extends Component {
 
   saveGame = () => {
     addStorage(this.state, 'mg_save');
+  }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
+
+  autoGame = async () => {
+    this.startGame();
+    await this.sleep(1000);
+    let cards = this.state.cards;
+
+    while (cards) {
+      const firstCardId = this.getRandomInt(cards.length);
+      const firstCard = cards[firstCardId];
+      cards = cards.filter((el, idx) => idx !== firstCardId);
+
+      const secondCardId = this.getRandomInt(cards.length);
+      const secondCard = cards[secondCardId]
+      cards = cards.filter((el, idx) => idx !== secondCardId);
+
+      this.onViewCard(firstCard);
+      await this.sleep(500);
+      this.onViewCard(secondCard);
+      await this.sleep(2000);
+
+      if (firstCard.imgId !== secondCard.imgId) {
+        cards.push(firstCard);
+        cards.push(secondCard);
+      }
+
+      if (cards.length === 0) break;
+    }
   }
 
   generateCard = (sizeFieldIndex) => {
@@ -188,12 +226,16 @@ class Main extends Component {
     this.setState(prevState => ({ viewSettings: !prevState.viewSettings }));
   }
 
+  viewInfoModal = () => {
+    this.setState(prevState => ({ viewInfo: !prevState.viewInfo }));
+  }
+
 
   hotKeys = (event) => {
     if (event.shiftKey || event.metaKey) {
       switch (event.code) {
         case 'KeyM':
-          this.setState({ sound: 0 });
+          this.setState({ sound: 0, music: 0 });
           break;
         case 'KeyN':
           this.startGame();
@@ -256,7 +298,6 @@ class Main extends Component {
 
     this.audioBtn.volume = sound / 100;
     this.audioFon.volume = music / 100;
-    //this.audioFon.play();
 
     let finished = true;
     for (const card of cards) {
@@ -264,7 +305,6 @@ class Main extends Component {
     }
     if (isStarted && finished) {
       this.endGame();
-      console.log('end');
     }
 
     if (firstCard && secondCard) {
@@ -282,7 +322,6 @@ class Main extends Component {
         }, speedType[speedIndex].value);
       }
 
-      //this.setState({ firstCard: null, secondCard: null });
       this.setState(prevState => ({
         moves: prevState.moves + 1,
         firstCard: null,
@@ -308,6 +347,7 @@ class Main extends Component {
       timer,
       viewStats,
       viewSettings,
+      viewInfo,
       fullscreen,
       sound,
       music
@@ -323,13 +363,14 @@ class Main extends Component {
           </div>
 
           <div className="controls">
-            <i className="material-icons" onClick={this.viewSettingsModal}>info_outline</i>
+            <i className="material-icons" onClick={this.viewInfoModal}>info_outline</i>
             <i className="material-icons" onClick={this.viewStatsModal}>view_list</i>
             <i className="material-icons" onClick={this.viewSettingsModal}>settings</i>
             <i className="material-icons" onClick={() => this.startGame()}>autorenew</i>
             <i className="material-icons" onClick={isPause ? this.continueGame : this.pauseGame}>
               {isPause ? 'play_circle_outline' : 'pause_circle_outline'}
             </i>
+            <i className="material-icons" onClick={() => this.autoGame()}>queue_play_next</i>
 
             {
               fullscreen
@@ -378,6 +419,7 @@ class Main extends Component {
         </div>
 
         <Stats viewStats={viewStats} viewStatsModal={this.viewStatsModal} />
+        <Info viewInfo={viewInfo} viewInfoModal={this.viewInfoModal} />
         <Settings
           sound={sound}
           onChangeSoundVolume={sound => this.setState({ sound })}

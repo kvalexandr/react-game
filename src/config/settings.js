@@ -1,19 +1,15 @@
 export const sizeField = [
   {
-    rows: 2,
-    cols: 3
+    rows: 3,
+    cols: 4
   },
   {
-    rows: 3,
-    cols: 6
+    rows: 4,
+    cols: 5
   },
   {
     rows: 6,
     cols: 6
-  },
-  {
-    rows: 8,
-    cols: 7
   },
 ];
 
